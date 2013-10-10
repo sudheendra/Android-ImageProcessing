@@ -88,36 +88,85 @@
             <Button android:layout_height="70dp"
                 android:layout_width="match_parent"
                 android:layout_marginTop="5dp"
-                android:text="Highlight"
-                android:id="@+id/HighlightImageBtn"
+                android:text="Sepia"
+                android:id="@+id/SepiaBtn"
                 android:background="@drawable/customborder"/>
 
             <Button android:layout_height="70dp"
                 android:layout_width="match_parent"
                 android:layout_marginTop="5dp"
-                android:text="Highlight"
-                android:id="@+id/HighlightImageBtn"
+                android:text="Contrast"
+                android:id="@+id/ContrastBtn"
                 android:background="@drawable/customborder"/>
 
             <Button android:layout_height="70dp"
                 android:layout_width="match_parent"
-                android:text="Highlight"
+                android:text="Blur"
                 android:layout_marginTop="5dp"
-                android:id="@+id/HighlightImageBtn"
+                android:id="@+id/BlurBtn"
                 android:background="@drawable/customborder"/>
 
             <Button android:layout_height="70dp"
                 android:layout_width="match_parent"
                 android:layout_marginTop="5dp"
-                android:text="Highlight"
-                android:id="@+id/HighlightImageBtn"
+                android:text="Sharpen"
+                android:id="@+id/SharpenBtn"
                 android:background="@drawable/customborder"/>
 
             <Button android:layout_height="70dp"
                 android:layout_width="match_parent"
-                android:text="Highlight"
+                android:text="Smooth"
                 android:layout_marginTop="5dp"
-                android:id="@+id/HighlightImageBtn"
+                android:id="@+id/SmoothBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="Emboss"
+                android:layout_marginTop="5dp"
+                android:id="@+id/EmbossBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="Engrave"
+                android:layout_marginTop="5dp"
+                android:id="@+id/EngraveBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="WaterMark"
+                android:layout_marginTop="5dp"
+                android:id="@+id/WatermarkBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="Mirror"
+                android:layout_marginTop="5dp"
+                android:id="@+id/MirrorBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="FlipVertical"
+                android:layout_marginTop="5dp"
+                android:id="@+id/FlipVerticalBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="Tint"
+                android:layout_marginTop="5dp"
+                android:id="@+id/TintBtn"
+                android:background="@drawable/customborder"/>
+
+            <Button android:layout_height="70dp"
+                android:layout_width="match_parent"
+                android:text="Reflection"
+                android:layout_marginTop="5dp"
+                android:id="@+id/ReflectionBtn"
                 android:background="@drawable/customborder"/>
 
         </LinearLayout>
