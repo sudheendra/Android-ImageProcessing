@@ -343,7 +343,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap watermark(Bitmap src, String watermark, Point location, Color color, int alpha, int size, boolean underline) {
+    public static Bitmap watermark(Bitmap src, String watermark, Point location, int color, int alpha, int size, boolean underline) {
         int w = src.getWidth();
         int h = src.getHeight();
         Bitmap result = Bitmap.createBitmap(w, h, src.getConfig());
@@ -352,7 +352,7 @@ public class ImageManipulator {
         canvas.drawBitmap(src, 0, 0, null);
 
         Paint paint = new Paint();
-        paint.setColor(color.hashCode());
+        paint.setColor(color);
         paint.setAlpha(alpha);
         paint.setTextSize(size);
         paint.setAntiAlias(true);
