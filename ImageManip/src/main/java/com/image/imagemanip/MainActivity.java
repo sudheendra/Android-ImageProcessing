@@ -69,6 +69,10 @@ public class MainActivity extends Activity {
     private String imagename;
     private String imageorigname;
 
+    private String tintValue;
+    private String waterText;
+    private String waterSize;
+
     private static int RESULT_LOAD_IMAGE = 1;
 
     @Override
@@ -298,7 +302,8 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View view) {
             PopupTextForResult("Tint", "Set Tint value");
-            Bitmap res = imageManipulator.tintImage(image, 60);
+            int tintVal = Integer.parseInt(tintValue);
+            Bitmap res = imageManipulator.tintImage(image, tintVal);
             imagename = "Tint";
             imageView.setImageBitmap(res);
         }
@@ -343,8 +348,6 @@ public class MainActivity extends Activity {
 
     private void PopupTextForResult(String title, String message)
     {
-        String result = "";
-
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(title);
         alert.setMessage(message);
@@ -355,10 +358,8 @@ public class MainActivity extends Activity {
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String output = input.getText().toString();
-                // Do something with value!
+                tintValue = input.getText().toString();
             }
         });
-
     }
 }
