@@ -1,5 +1,7 @@
 package com.image.imagemanip;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
@@ -13,6 +15,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
+import android.widget.ProgressBar;
 
 
 /**
@@ -51,7 +54,7 @@ public class ImageManipulator {
         return bmpGrayscale;
     }
 
-    public static Bitmap doInvert(Bitmap src)
+    public Bitmap doInvert(Bitmap src)
     {
         // create new bitmap with the same settings as source bitmap
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
@@ -84,7 +87,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap doHighlightImage(Bitmap src)
+    public Bitmap doHighlightImage(Bitmap src)
     {
         // create new bitmap, which will be painted and becomes result image
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth() + 96, src.getHeight() + 96, Bitmap.Config.ARGB_8888);
@@ -114,7 +117,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap doGamma(Bitmap src, double red, double green, double blue)
+    public Bitmap doGamma(Bitmap src, double red, double green, double blue)
     {
         // create output image
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
@@ -164,7 +167,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap createSepiaToningEffect(Bitmap src, int depth, double red, double green, double blue) {
+    public Bitmap createSepiaToningEffect(Bitmap src, int depth, double red, double green, double blue) {
         // image size
         int width = src.getWidth();
         int height = src.getHeight();
@@ -210,7 +213,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap createContrast(Bitmap src, double value) {
+    public Bitmap createContrast(Bitmap src, double value) {
         // image size
         int width = src.getWidth();
         int height = src.getHeight();
@@ -253,20 +256,21 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap applyGaussianBlur(Bitmap src) {
+    public Bitmap applyGaussianBlur(Bitmap src, int factor) {
         double[][] GaussianBlurConfig = new double[][] {
                 { 1, 2, 1 },
                 { 2, 4, 2 },
                 { 1, 2, 1 }
         };
+
         ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
         convMatrix.applyConfig(GaussianBlurConfig);
-        convMatrix.Factor = 16;
+        convMatrix.Factor = factor;
         convMatrix.Offset = 0;
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 
-    public static Bitmap sharpen(Bitmap src, double weight) {
+    public Bitmap sharpen(Bitmap src, double weight) {
         double[][] SharpConfig = new double[][] {
                 { 0 , -2    , 0  },
                 { -2, weight, -2 },
@@ -278,7 +282,7 @@ public class ImageManipulator {
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 
-    public static Bitmap smooth(Bitmap src, double value) {
+    public Bitmap smooth(Bitmap src, double value) {
         ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
         convMatrix.setAll(1);
         convMatrix.Matrix[1][1] = value;
@@ -287,7 +291,7 @@ public class ImageManipulator {
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 
-    public static Bitmap emboss(Bitmap src) {
+    public Bitmap emboss(Bitmap src) {
         double[][] EmbossConfig = new double[][] {
                 { -1 ,  0, -1 },
                 {  0 ,  4,  0 },
@@ -300,7 +304,7 @@ public class ImageManipulator {
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 
-    public static Bitmap engrave(Bitmap src) {
+    public Bitmap engrave(Bitmap src) {
         ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
         convMatrix.setAll(0);
         convMatrix.Matrix[0][0] = -2;
@@ -310,7 +314,7 @@ public class ImageManipulator {
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 
-    public static Bitmap boost(Bitmap src, int type, float percent) {
+    public Bitmap boost(Bitmap src, int type, float percent) {
         int width = src.getWidth();
         int height = src.getHeight();
         Bitmap bmOut = Bitmap.createBitmap(width, height, src.getConfig());
@@ -343,7 +347,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public static Bitmap watermark(Bitmap src, String watermark, Point location, int color, int alpha, int size, boolean underline) {
+    public Bitmap watermark(Bitmap src, String watermark, Point location, int color, int alpha, int size, boolean underline) {
         int w = src.getWidth();
         int h = src.getHeight();
         Bitmap result = Bitmap.createBitmap(w, h, src.getConfig());
@@ -362,7 +366,7 @@ public class ImageManipulator {
         return result;
     }
 
-    public static Bitmap flip(Bitmap src, int type) {
+    public Bitmap flip(Bitmap src, int type) {
         // create new matrix for transformation
         Matrix matrix = new Matrix();
         // if vertical
@@ -383,7 +387,7 @@ public class ImageManipulator {
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
     }
 
-    public static Bitmap tintImage(Bitmap src, int degree) {
+    public Bitmap tintImage(Bitmap src, int degree) {
 
         int width = src.getWidth();
         int height = src.getHeight();
@@ -427,7 +431,7 @@ public class ImageManipulator {
         return outBitmap;
     }
 
-    public static Bitmap applyReflection(Bitmap originalImage) {
+    public Bitmap applyReflection(Bitmap originalImage) {
         // gap space between original and reflected
         final int reflectionGap = 4;
         // get image size

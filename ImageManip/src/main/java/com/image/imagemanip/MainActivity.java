@@ -1,25 +1,22 @@
 package com.image.imagemanip;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
-import android.preference.PreferenceManager;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
@@ -28,19 +25,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.Buffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.datatype.Duration;
 
 public class MainActivity extends Activity {
 
@@ -48,7 +38,6 @@ public class MainActivity extends Activity {
     private ImageView imageView;
     private Button greyImageBtn;
     private Button gammaImageBtn;
-    private Button hightlightImageBtn;
     private Button invertImageBtn;
     private Button sepiaBtn;
     private Button contrastBtn;
@@ -69,11 +58,19 @@ public class MainActivity extends Activity {
     private String imagename;
     private String imageorigname;
 
-    private String tintValue;
-    private String waterText;
-    private String waterSize;
+    private int tintValue;
+    private float GammaR;
+    private float GammaG;
+    private float GammaB;
+    private int Depth;
+    private String WaterMarkText;
+    private int WaterMarkSize;
 
     private static int RESULT_LOAD_IMAGE = 1;
+    private Context context = this;
+    private ProgressDialog progress;
+    private Handler handler;
+    private Bitmap result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,16 +79,15 @@ public class MainActivity extends Activity {
         imageView = (ImageView) findViewById(R.id.imageView);
         greyImageBtn = (Button) findViewById(R.id.GreyImageBtn);
         gammaImageBtn = (Button) findViewById(R.id.GammaImageBtn);
-        hightlightImageBtn = (Button) findViewById(R.id.HighlightImageBtn);
         invertImageBtn = (Button) findViewById(R.id.InvertImageBtn);
         sepiaBtn = (Button) findViewById(R.id.SepiaBtn);
         contrastBtn = (Button) findViewById(R.id.ContrastBtn);
         blurBtn = (Button) findViewById(R.id.BlurBtn);
-        sharpenBtn = (Button) findViewById(R.id.BlurBtn);
+        sharpenBtn = (Button) findViewById(R.id.SharpenBtn);
         smoothBtn = (Button) findViewById(R.id.SmoothBtn);
         embossBtn = (Button) findViewById(R.id.EmbossBtn);
         engraveBtn = (Button) findViewById(R.id.EngraveBtn);
-        watermarkBtn = (Button) findViewById(R.id.EngraveBtn);
+        watermarkBtn = (Button) findViewById(R.id.WatermarkBtn);
         mirrorBtn = (Button) findViewById(R.id.MirrorBtn);
         flipVerticalBtn = (Button) findViewById(R.id.FlipVerticalBtn);
         tintBtn = (Button) findViewById(R.id.TintBtn);
@@ -105,7 +101,6 @@ public class MainActivity extends Activity {
         imageView.setOnClickListener(LoadImageFromGallery);
         greyImageBtn.setOnClickListener(OnGreyBtnClick);
         gammaImageBtn.setOnClickListener(OnGammaBtnClick);
-        hightlightImageBtn.setOnClickListener(OnHighlightImageBtnClick);
         invertImageBtn.setOnClickListener(OnInvertImageBtnClick);
         sepiaBtn.setOnClickListener(OnSepiaBtnClick);
         contrastBtn.setOnClickListener(OnContrastBtnClick);
@@ -174,109 +169,556 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnGammaBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.doGamma(image, 0.6, 0.6, 0.6);
-            imagename = "Gamma";
-            imageView.setImageBitmap(res);
-        }
-    };
 
-    private View.OnClickListener OnHighlightImageBtnClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Bitmap res = imageManipulator.doHighlightImage(image);
-            imagename = "Highlighted";
-            imageView.setImageBitmap(res);
+            LinearLayout ll = new LinearLayout(context);
+            ll.setOrientation(LinearLayout.VERTICAL);
+            final EditText red = new EditText(context);
+            red.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            red.setHint("Red (0.0 - 1.0)");
+            final EditText green = new EditText(context);
+            green.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            green.setHint("Green (0.0 - 1.0)");
+            final EditText blue = new EditText(context);
+            blue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            blue.setHint("Blue (0.0 - 1.0)");
+
+            ll.addView(red);
+            ll.addView(green);
+            ll.addView(blue);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setTitle("Set R, G, B values");
+            alertDialogBuilder.setView(ll);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    GammaR = Float.parseFloat(red.getText().toString().trim());
+                                    GammaG = Float.parseFloat(green.getText().toString().trim());
+                                    GammaB = Float.parseFloat(blue.getText().toString().trim());
+
+                                    progress = new ProgressDialog(context);
+                                    progress.setTitle("ImageManip");
+                                    progress.setMessage("Gamma Correction in Progress");
+                                    progress.setCancelable(false);
+                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                    handler = new Handler()
+                                    {
+                                        public void  handleMessage(Message msg)
+                                        {
+                                            imageView.setImageBitmap(result);
+                                            progress.dismiss();
+                                        }
+                                    };
+                                    progress.show();
+
+                                    new Thread()
+                                    {
+                                        public void run()
+                                        {
+                                            result = imageManipulator.doGamma(image, GammaR, GammaG, GammaB);
+                                            handler.sendEmptyMessage(0);
+                                        }
+                                    }.start();
+                                }
+                            })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+
+            imagename = "Gamma";
         }
     };
 
     private View.OnClickListener OnInvertImageBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.doInvert(image);
+            progress = new ProgressDialog(context);
+            progress.setTitle("ImageManip");
+            progress.setMessage("Inverting in Progress");
+            progress.setCancelable(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            handler = new Handler()
+            {
+                public void  handleMessage(Message msg)
+                {
+                    imageView.setImageBitmap(result);
+                    progress.dismiss();
+                }
+            };
+            progress.show();
+
+            new Thread()
+            {
+                public void run()
+                {
+                    result = imageManipulator.doInvert(image);
+                    handler.sendEmptyMessage(0);
+                }
+            }.start();
             imagename = "Inverted";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnSepiaBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.createSepiaToningEffect(image, 100, 1, 1, 0);
+            LinearLayout ll = new LinearLayout(context);
+            ll.setOrientation(LinearLayout.VERTICAL);
+
+            final EditText depth = new EditText(context);
+            depth.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            depth.setHint("Depth (1 - 100)");
+            final EditText red = new EditText(context);
+            red.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            red.setHint("Red (0.0 - 1.0)");
+            final EditText green = new EditText(context);
+            green.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            green.setHint("Green (0.0 - 1.0)");
+            final EditText blue = new EditText(context);
+            blue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            blue.setHint("Blue (0.0 - 1.0)");
+
+            ll.addView(depth);
+            ll.addView(red);
+            ll.addView(green);
+            ll.addView(blue);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setTitle("Set Depth, R, G, B values");
+            alertDialogBuilder.setView(ll);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    Depth = Integer.parseInt(depth.getText().toString());
+                                    GammaR = Float.parseFloat(red.getText().toString());
+                                    GammaG = Float.parseFloat(green.getText().toString());
+                                    GammaB = Float.parseFloat(blue.getText().toString());
+
+                                    progress = new ProgressDialog(context);
+                                    progress.setTitle("ImageManip");
+                                    progress.setMessage("Sepia Effect in Progress");
+                                    progress.setCancelable(false);
+                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                    handler = new Handler()
+                                    {
+                                        public void  handleMessage(Message msg)
+                                        {
+                                            imageView.setImageBitmap(result);
+                                            progress.dismiss();
+                                        }
+                                    };
+                                    progress.show();
+
+                                    new Thread()
+                                    {
+                                        public void run()
+                                        {
+                                            result = imageManipulator.createSepiaToningEffect(image, Depth,  GammaR, GammaG, GammaB);
+                                            handler.sendEmptyMessage(0);
+                                        }
+                                    }.start();
+                                }
+                            })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
             imagename = "Sepia";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnContrastBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.createContrast(image, 0.5);
+
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            alertBuilder.setTitle("Contrast");
+            alertBuilder.setMessage("Set Contrast Factor (1 - 100");
+
+            final EditText userInput = new EditText(context);
+            userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            alertBuilder.setView(userInput);
+
+            alertBuilder.setCancelable(false);
+            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+                    String val = userInput.getText().toString();
+                    final float contrastVal = (float) Integer.parseInt(val)/100;
+
+                    // progress bar
+                    progress = new ProgressDialog(context);
+                    progress.setTitle("ImageManip");
+                    progress.setMessage("Contrast in progress");
+                    progress.setCancelable(false);
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    handler = new Handler()
+                    {
+                        public void  handleMessage(Message msg)
+                        {
+                            imageView.setImageBitmap(result);
+                            progress.dismiss();
+                        }
+                    };
+                    progress.show();
+
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            result = imageManipulator.createContrast(image, contrastVal);
+                            handler.sendEmptyMessage(0);
+                        }
+                    }.start();
+                }
+            });
+            alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,
+                                    int id) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertBuilder.create();
+
+            // show it
+            alertDialog.show();
             imagename = "Contrast";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnBlurBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.applyGaussianBlur(image);
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            alertBuilder.setTitle("Blur");
+
+            final EditText userInput = new EditText(context);
+            userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            userInput.setHint("Set Blur value (1 - 100)");
+            alertBuilder.setView(userInput);
+
+            alertBuilder.setCancelable(false);
+            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+                    final int blurVal = Integer.parseInt(userInput.getText().toString());
+
+                    // progress bar
+                    progress = new ProgressDialog(context);
+                    progress.setTitle("ImageManip");
+                    progress.setMessage("Blur effect in progress");
+                    progress.setCancelable(false);
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    handler = new Handler()
+                    {
+                        public void handleMessage(Message msg)
+                        {
+                            imageView.setImageBitmap(result);
+                            progress.dismiss();
+                        }
+                    };
+                    progress.show();
+
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            result = imageManipulator.applyGaussianBlur(image, blurVal);
+                            handler.sendEmptyMessage(0);
+                        }
+                    }.start();
+
+
+                }
+            });
+            alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,
+                                    int id) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertBuilder.create();
+
+            // show it
+            alertDialog.show();
             imagename = "Blur";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnSharpenBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.sharpen(image, 0.8);
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            alertBuilder.setTitle("Sharpening");
+            alertBuilder.setMessage("Set Sharpening Factor (1 - 100");
+
+            final EditText userInput = new EditText(context);
+            userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            alertBuilder.setView(userInput);
+
+            alertBuilder.setCancelable(false);
+            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+                    String val = userInput.getText().toString();
+                    final float sharpnessVal = (float) Integer.parseInt(val)/100;
+
+                    // progress bar
+                    progress = new ProgressDialog(context);
+                    progress.setTitle("ImageManip");
+                    progress.setMessage("Sharpnening in progress");
+                    progress.setCancelable(false);
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    handler = new Handler()
+                    {
+                        public void  handleMessage(Message msg)
+                        {
+                            imageView.setImageBitmap(result);
+                            progress.dismiss();
+                        }
+                    };
+                    progress.show();
+
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            result = imageManipulator.sharpen(image, sharpnessVal);
+                            handler.sendEmptyMessage(0);
+                        }
+                    }.start();
+                }
+            });
+            alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,
+                                    int id) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertBuilder.create();
+
+            // show it
+            alertDialog.show();
             imagename = "Sharp";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnSmoothBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.smooth(image, 0.8);
-            imagename = "Smooth";
-            imageView.setImageBitmap(res);
+
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            alertBuilder.setTitle("Smooth");
+            alertBuilder.setMessage("Set Smoothing Factor (1 - 100");
+
+            final EditText userInput = new EditText(context);
+            userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            alertBuilder.setView(userInput);
+
+            alertBuilder.setCancelable(false);
+            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+                    String val = userInput.getText().toString();
+                    final float smoothVal = (float) Integer.parseInt(val)/100;
+
+                    // progress bar
+                    progress = new ProgressDialog(context);
+                    progress.setTitle("ImageManip");
+                    progress.setMessage("Smoothening in progress");
+                    progress.setCancelable(false);
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    handler = new Handler()
+                    {
+                        public void  handleMessage(Message msg)
+                        {
+                            imageView.setImageBitmap(result);
+                            progress.dismiss();
+                        }
+                    };
+                    progress.show();
+
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            result = imageManipulator.smooth(image, smoothVal);
+                            handler.sendEmptyMessage(0);
+                        }
+                    }.start();
+
+                    imagename = "Smooth";
+            }
+            });
+            alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,
+                                    int id) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertBuilder.create();
+
+            // show it
+            alertDialog.show();
         }
     };
 
     private View.OnClickListener OnEmbossBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.emboss(image);
-            imagename = "Emboss";
-            imageView.setImageBitmap(res);
-        }
-    };
+            progress = new ProgressDialog(context);
+            progress.setTitle("ImageManip");
+            progress.setMessage("Emboss in progress");
+            progress.setCancelable(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            handler = new Handler()
+            {
+                public void  handleMessage(Message msg)
+                {
+                    imageView.setImageBitmap(result);
+                    progress.dismiss();
+                }
+            };
+            progress.show();
 
-    private View.OnClickListener OnEngrossBtnClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Bitmap res = imageManipulator.emboss(image);
-            imagename = "Engross";
-            imageView.setImageBitmap(res);
+            new Thread()
+            {
+                public void run()
+                {
+                    result = imageManipulator.emboss(image);
+                    handler.sendEmptyMessage(0);
+                }
+            }.start();
+
+            imagename = "Emboss";
         }
     };
 
     private View.OnClickListener OnEngraveBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bitmap res = imageManipulator.engrave(image);
+            progress = new ProgressDialog(context);
+            progress.setTitle("ImageManip");
+            progress.setMessage("Engrave in progress");
+            progress.setCancelable(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            handler = new Handler()
+            {
+                public void  handleMessage(Message msg)
+                {
+                    imageView.setImageBitmap(result);
+                    progress.dismiss();
+                }
+            };
+            progress.show();
+
+            new Thread()
+            {
+                public void run()
+                {
+                    result = imageManipulator.engrave(image);
+                    handler.sendEmptyMessage(0);
+                }
+            }.start();
+
             imagename = "Engrave";
-            imageView.setImageBitmap(res);
         }
     };
 
     private View.OnClickListener OnWatermarkBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Point p = new Point(20, 20);
-            Bitmap res = imageManipulator.watermark(image, "WATER MARKER", p, Color.BLACK, 1, 5, true);
+            final Point p = new Point(20, 20);
+
+            LinearLayout ll = new LinearLayout(context);
+            ll.setOrientation(LinearLayout.VERTICAL);
+            final EditText waterMark = new EditText(context);
+            waterMark.setInputType(InputType.TYPE_CLASS_TEXT);
+            waterMark.setHint("Enter the text to be written on image");
+            final EditText size = new EditText(context);
+            size.setInputType(InputType.TYPE_CLASS_NUMBER);
+            size.setHint("Set the size of text");
+
+            ll.addView(waterMark);
+            ll.addView(size);
+
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+            alertBuilder.setTitle("Enter WaterMark Details");
+            alertBuilder.setView(ll);
+
+            alertBuilder.setCancelable(false);
+            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+                    WaterMarkText = waterMark.getText().toString();
+                    WaterMarkSize = Integer.parseInt(size.getText().toString());
+
+                    // progress bar
+                    progress = new ProgressDialog(context);
+                    progress.setTitle("ImageManip");
+                    progress.setMessage("Watermarking in progress");
+                    progress.setCancelable(false);
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    handler = new Handler()
+                    {
+                        public void  handleMessage(Message msg)
+                        {
+                            imageView.setImageBitmap(result);
+                            progress.dismiss();
+                        }
+                    };
+                    progress.show();
+
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            result = imageManipulator.watermark(image, WaterMarkText, p, Color.BLUE, 100, WaterMarkSize, true);
+                            handler.sendEmptyMessage(0);
+                        }
+                    }.start();
+                }
+            });
+            alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog,
+                                    int id) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertBuilder.create();
+            // show it
+            alertDialog.show();
+
             imagename = "Watermark";
-            imageView.setImageBitmap(res);
         }
     };
 
@@ -301,11 +743,64 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnTintBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            PopupTextForResult("Tint", "Set Tint value");
-            int tintVal = Integer.parseInt(tintValue);
-            Bitmap res = imageManipulator.tintImage(image, tintVal);
-            imagename = "Tint";
-            imageView.setImageBitmap(res);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+            alertDialogBuilder.setTitle("Set Tint Value");
+
+            final EditText userInput = new EditText(context);
+            userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            userInput.setHint("Tint Value (0 - 100)");
+            alertDialogBuilder.setView(userInput);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    tintValue = Integer.parseInt(userInput.getText().toString());
+
+                                    progress = new ProgressDialog(context);
+                                    progress.setTitle("ImageManip");
+                                    progress.setMessage("Tint in Progress");
+                                    progress.setCancelable(false);
+                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                    handler = new Handler()
+                                    {
+                                        public void  handleMessage(Message msg)
+                                        {
+                                            imageView.setImageBitmap(result);
+                                            progress.dismiss();
+                                        }
+                                    };
+                                    progress.show();
+
+                                    new Thread()
+                                    {
+                                        public void run()
+                                        {
+                                            result = imageManipulator.tintImage(image, tintValue);
+                                            handler.sendEmptyMessage(0);
+                                        }
+                                    }.start();
+
+                                    imagename = "Tint";
+                                }
+                            })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
         }
     };
 
@@ -323,6 +818,7 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             Bitmap outImage = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
             String fileName = imageorigname + "_" + imagename;
+            WriteToFile(fileName, outImage);
         }
     };
 
@@ -331,6 +827,7 @@ public class MainActivity extends Activity {
         String path = Environment.getExternalStorageDirectory().toString();
         FileOutputStream f = null;
         path += "/ImageManip/" + filename + ".png";
+        Log.i("ImageManip Path: ", path);
         File file = new File(path);
         try
         {
@@ -341,25 +838,8 @@ public class MainActivity extends Activity {
         }
         catch (IOException ex)
         {
-            Log.i("ImageManip", "failed to save the image");
+            Log.i("ImageManip", ex.getMessage());
             Toast.makeText(this, "Failed to save image to storage card", Toast.LENGTH_LONG);
         }
-    }
-
-    private void PopupTextForResult(String title, String message)
-    {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle(title);
-        alert.setMessage(message);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        alert.setView(input);
-
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                tintValue = input.getText().toString();
-            }
-        });
     }
 }
