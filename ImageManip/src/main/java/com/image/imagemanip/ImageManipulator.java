@@ -256,7 +256,7 @@ public class ImageManipulator {
         return bmOut;
     }
 
-    public Bitmap applyGaussianBlur(Bitmap src, int factor) {
+    public Bitmap applyGaussianBlur(Bitmap src, int factor, int offset) {
         double[][] GaussianBlurConfig = new double[][] {
                 { 1, 2, 1 },
                 { 2, 4, 2 },
@@ -266,7 +266,7 @@ public class ImageManipulator {
         ConvolutionMatrix convMatrix = new ConvolutionMatrix(3);
         convMatrix.applyConfig(GaussianBlurConfig);
         convMatrix.Factor = factor;
-        convMatrix.Offset = 0;
+        convMatrix.Offset = offset;
         return ConvolutionMatrix.computeConvolution3x3(src, convMatrix);
     }
 

@@ -7,168 +7,153 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="left"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_weight="0.8"
         >
         <ImageView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="0.9"
-            android:minHeight="400dp"
             android:id="@+id/imageView"
             android:onClick="LoadImageFromGallery"/>
-
-        <View android:layout_height="1dp"
-                android:layout_width="match_parent"
-                android:background="#FF007CCD" />
-
-        <Button android:layout_width="100dp"
-                android:layout_height="40dp"
-                android:layout_weight="0.2"
-                android:text="Save"
-                android:id="@+id/SaveBtn"
-                android:layout_gravity="bottom"
-                android:background="#FF808080"/>
-
     </LinearLayout>
 
 
-    <View android:layout_height="match_parent"
-        android:layout_width="1dp"
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:background="#FF007CCD" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_weight="0.3"
-        android:layout_gravity="left|center_vertical"
-        android:orientation="vertical">
 
-        <ScrollView android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:scrollbars="vertical"
-            android:fadeScrollbars="true"
-            android:scrollbarThumbVertical="@drawable/customscrollbar">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|center_vertical"
+        android:orientation="horizontal">
+
+        <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbarThumbVertical="@drawable/customscrollbar"
+        android:fadeScrollbars="true">
+
 
         <LinearLayout android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_height="match_parent"
+                android:layout_width="70dp"
                 android:text="Grey"
                 android:id="@+id/GreyImageBtn"
                 android:onClick="GenerateGreyImage"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Gamma"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/GammaImageBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
                 android:text="Invert"
                 android:id="@+id/InvertImageBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
                 android:text="Sepia"
                 android:id="@+id/SepiaBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
                 android:text="Contrast"
                 android:id="@+id/ContrastBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Blur"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/BlurBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
                 android:text="Sharpen"
                 android:id="@+id/SharpenBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Smooth"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/SmoothBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Emboss"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/EmbossBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Engrave"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/EngraveBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="100dp"
+                android:layout_height="match_parent"
                 android:text="WaterMark"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/WatermarkBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Mirror"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/MirrorBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="100dp"
+                android:layout_height="match_parent"
                 android:text="FlipVertical"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/FlipVerticalBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="70dp"
+                android:layout_height="match_parent"
                 android:text="Tint"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/TintBtn"
                 android:background="@drawable/customborder"/>
 
-            <Button android:layout_height="70dp"
-                android:layout_width="match_parent"
+            <Button android:layout_width="80dp"
+                android:layout_height="match_parent"
                 android:text="Reflection"
-                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
                 android:id="@+id/ReflectionBtn"
                 android:background="@drawable/customborder"/>
 
         </LinearLayout>
-
-        </ScrollView>
+        </HorizontalScrollView>
 
     </LinearLayout>
 

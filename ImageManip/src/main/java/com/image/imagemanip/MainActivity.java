@@ -21,6 +21,8 @@ import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -51,7 +53,6 @@ public class MainActivity extends Activity {
     private Button flipVerticalBtn;
     private Button tintBtn;
     private Button reflectionBtn;
-    private Button saveBtn;
 
     private ImageManipulator imageManipulator;
 
@@ -92,7 +93,6 @@ public class MainActivity extends Activity {
         flipVerticalBtn = (Button) findViewById(R.id.FlipVerticalBtn);
         tintBtn = (Button) findViewById(R.id.TintBtn);
         reflectionBtn = (Button) findViewById(R.id.ReflectionBtn);
-        saveBtn = (Button) findViewById(R.id.SaveBtn);
 
         imageManipulator = new ImageManipulator();
         imagename = "";
@@ -114,16 +114,42 @@ public class MainActivity extends Activity {
         flipVerticalBtn.setOnClickListener(OnflipVerticalBtnClick);
         tintBtn.setOnClickListener(OnTintBtnClick);
         reflectionBtn.setOnClickListener(OnReflectionBtnClick);
-        saveBtn.setOnClickListener(OnSaveBtnClick);
+    }
+
+    public void onResume()
+    {
+        super.onResume();
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+            // Inflate the menu items for use in the action bar
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.main, menu);
+            return super.onCreateOptionsMenu(menu);
     }
+
+    public boolean onOptionsItemSelected(MenuItem menuItem)
+    {
+        switch (menuItem.getItemId()) {
+            case R.id.action_save:
+                Bitmap outImage = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                String fileName = imageorigname + "_" + imagename;
+                WriteToFile(fileName, outImage);
+                return true;
+            default:
+                return super.onOptionsItemSelected(menuItem);
+        }
+    }
+
+    private View.OnClickListener DragImageView = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            return;
+        }
+    };
 
     private View.OnClickListener LoadImageFromGallery = new View.OnClickListener() {
         @Override
@@ -140,14 +166,18 @@ public class MainActivity extends Activity {
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
+            assert selectedImage != null;
             Cursor cursor = getContentResolver().query(selectedImage,
                     filePathColumn, null, null, null);
+            assert cursor != null;
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
+            String picturePath;
+            picturePath = cursor.getString(columnIndex);
             cursor.close();
 
+            assert picturePath != null;
             String[] splitPath = picturePath.split("/");
             imageorigname = splitPath[splitPath.length - 1];
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -166,83 +196,89 @@ public class MainActivity extends Activity {
         }
     };
 
-    private View.OnClickListener OnGammaBtnClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
+    private View.OnClickListener OnGammaBtnClick;
 
-            LinearLayout ll = new LinearLayout(context);
-            ll.setOrientation(LinearLayout.VERTICAL);
-            final EditText red = new EditText(context);
-            red.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            red.setHint("Red (0.0 - 1.0)");
-            final EditText green = new EditText(context);
-            green.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            green.setHint("Green (0.0 - 1.0)");
-            final EditText blue = new EditText(context);
-            blue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            blue.setHint("Blue (0.0 - 1.0)");
+    {
+        OnGammaBtnClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-            ll.addView(red);
-            ll.addView(green);
-            ll.addView(blue);
+                LinearLayout ll = new LinearLayout(context);
+                ll.setOrientation(LinearLayout.VERTICAL);
+                final EditText red = new EditText(context);
+                red.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                red.setHint("Red (0.0 - 1.0)");
+                final EditText green = new EditText(context);
+                green.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                green.setHint("Green (0.0 - 1.0)");
+                final EditText blue = new EditText(context);
+                blue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                blue.setHint("Blue (0.0 - 1.0)");
 
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-            alertDialogBuilder.setTitle("Set R, G, B values");
-            alertDialogBuilder.setView(ll);
+                ll.addView(red);
+                ll.addView(green);
+                ll.addView(blue);
 
-            // set dialog message
-            alertDialogBuilder
-                    .setCancelable(false)
-                    .setPositiveButton("OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int id) {
-                                    GammaR = Float.parseFloat(red.getText().toString().trim());
-                                    GammaG = Float.parseFloat(green.getText().toString().trim());
-                                    GammaB = Float.parseFloat(blue.getText().toString().trim());
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                alertDialogBuilder.setTitle("Set R, G, B values");
+                alertDialogBuilder.setView(ll);
 
-                                    progress = new ProgressDialog(context);
-                                    progress.setTitle("ImageManip");
-                                    progress.setMessage("Gamma Correction in Progress");
-                                    progress.setCancelable(false);
-                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                    handler = new Handler()
-                                    {
-                                        public void  handleMessage(Message msg)
-                                        {
-                                            imageView.setImageBitmap(result);
-                                            progress.dismiss();
-                                        }
-                                    };
-                                    progress.show();
+                // set dialog message
+                alertDialogBuilder.setCancelable(false);
+                try
+                {
+                alertDialogBuilder.setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int id) {
+                                GammaR = Float.parseFloat(red.getText().toString().trim());
+                                GammaG = Float.parseFloat(green.getText().toString().trim());
+                                GammaB = Float.parseFloat(blue.getText().toString().trim());
 
-                                    new Thread()
-                                    {
-                                        public void run()
-                                        {
-                                            result = imageManipulator.doGamma(image, GammaR, GammaG, GammaB);
-                                            handler.sendEmptyMessage(0);
-                                        }
-                                    }.start();
-                                }
-                            })
-                    .setNegativeButton("Cancel",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int id) {
-                                    dialog.cancel();
-                                }
-                            });
+                                progress = new ProgressDialog(context);
+                                progress.setTitle("ImageManip");
+                                progress.setMessage("Gamma Correction in Progress");
+                                progress.setCancelable(false);
+                                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                handler = new Handler() {
+                                    public void handleMessage(Message msg) {
+                                        imageView.setImageBitmap(result);
+                                        progress.dismiss();
+                                    }
+                                };
+                                progress.show();
 
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
+                                new Thread() {
+                                    public void run() {
+                                        result = imageManipulator.doGamma(image, GammaR, GammaG, GammaB);
+                                        handler.sendEmptyMessage(0);
+                                    }
+                                }.start();
+                            }
+                        }).setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int id) {
+                                dialog.cancel();
+                            }
+                        });
+                }
+                catch (NullPointerException ex)
+                {
+                    Toast toast = Toast.makeText(context, "Please set all values", Toast.LENGTH_LONG);
+                    toast.show();
+                    Log.d("Exception", ex.getMessage());
+                }
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
 
-            // show it
-            alertDialog.show();
+                // show it
+                alertDialog.show();
 
-            imagename = "Gamma";
-        }
-    };
+                imagename = "Gamma";
+            }
+        };
+    }
 
     private View.OnClickListener OnInvertImageBtnClick = new View.OnClickListener() {
         @Override
@@ -309,10 +345,10 @@ public class MainActivity extends Activity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int id) {
-                                    Depth = Integer.parseInt(depth.getText().toString());
-                                    GammaR = Float.parseFloat(red.getText().toString());
-                                    GammaG = Float.parseFloat(green.getText().toString());
-                                    GammaB = Float.parseFloat(blue.getText().toString());
+                                    Depth = Integer.parseInt(depth.getText().toString().trim());
+                                    GammaR = Float.parseFloat(red.getText().toString().trim());
+                                    GammaG = Float.parseFloat(green.getText().toString().trim());
+                                    GammaB = Float.parseFloat(blue.getText().toString().trim());
 
                                     progress = new ProgressDialog(context);
                                     progress.setTitle("ImageManip");
@@ -371,7 +407,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
-                    String val = userInput.getText().toString();
+                    String val = userInput.getText().toString().trim();
                     final float contrastVal = (float) Integer.parseInt(val)/100;
 
                     // progress bar
@@ -418,18 +454,27 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnBlurBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+
+            LinearLayout ll = new LinearLayout(context);
+            ll.setOrientation(LinearLayout.VERTICAL);
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
             alertBuilder.setTitle("Blur");
 
             final EditText userInput = new EditText(context);
             userInput.setInputType(InputType.TYPE_CLASS_NUMBER);
             userInput.setHint("Set Blur value (1 - 100)");
-            alertBuilder.setView(userInput);
+            final  EditText offsetInput = new EditText(context);
+            offsetInput.setHint("Set offset value (1-100)");
+            offsetInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            ll.addView(userInput);
+            ll.addView(offsetInput);
+            alertBuilder.setView(ll);
 
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
-                    final int blurVal = Integer.parseInt(userInput.getText().toString());
+                    final int blurVal = Integer.parseInt(userInput.getText().toString().trim());
+                    final int offsetVal = Integer.parseInt(offsetInput.getText().toString().trim());
 
                     // progress bar
                     progress = new ProgressDialog(context);
@@ -451,7 +496,7 @@ public class MainActivity extends Activity {
                     {
                         public void run()
                         {
-                            result = imageManipulator.applyGaussianBlur(image, blurVal);
+                            result = imageManipulator.applyGaussianBlur(image, blurVal, offsetVal);
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
@@ -488,7 +533,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
-                    String val = userInput.getText().toString();
+                    String val = userInput.getText().toString().trim();
                     final float sharpnessVal = (float) Integer.parseInt(val)/100;
 
                     // progress bar
@@ -547,7 +592,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
-                    String val = userInput.getText().toString();
+                    String val = userInput.getText().toString().trim();
                     final float smoothVal = (float) Integer.parseInt(val)/100;
 
                     // progress bar
@@ -657,8 +702,6 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnWatermarkBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            final Point p = new Point(20, 20);
-
             LinearLayout ll = new LinearLayout(context);
             ll.setOrientation(LinearLayout.VERTICAL);
             final EditText waterMark = new EditText(context);
@@ -667,9 +710,17 @@ public class MainActivity extends Activity {
             final EditText size = new EditText(context);
             size.setInputType(InputType.TYPE_CLASS_NUMBER);
             size.setHint("Set the size of text");
+            final EditText pointX = new EditText(context);
+            pointX.setHint("Set X");
+            pointX.setInputType(InputType.TYPE_CLASS_NUMBER);
+            final EditText pointY = new EditText(context);
+            pointY.setHint("Set Y");
+            pointY.setInputType(InputType.TYPE_CLASS_NUMBER);
 
             ll.addView(waterMark);
             ll.addView(size);
+            ll.addView(pointX);
+            ll.addView(pointY);
 
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
             alertBuilder.setTitle("Enter WaterMark Details");
@@ -678,8 +729,10 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
-                    WaterMarkText = waterMark.getText().toString();
-                    WaterMarkSize = Integer.parseInt(size.getText().toString());
+                    WaterMarkText = waterMark.getText().toString().trim();
+                    WaterMarkSize = Integer.parseInt(size.getText().toString().trim());
+                    final int x = Integer.parseInt(pointX.getText().toString().trim());
+                    final int y = Integer.parseInt(pointY.getText().toString().trim());
 
                     // progress bar
                     progress = new ProgressDialog(context);
@@ -701,7 +754,7 @@ public class MainActivity extends Activity {
                     {
                         public void run()
                         {
-                            result = imageManipulator.watermark(image, WaterMarkText, p, Color.BLUE, 100, WaterMarkSize, true);
+                            result = imageManipulator.watermark(image, WaterMarkText, new Point(x, y), Color.BLUE, 100, WaterMarkSize, true);
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
@@ -759,7 +812,7 @@ public class MainActivity extends Activity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int id) {
-                                    tintValue = Integer.parseInt(userInput.getText().toString());
+                                    tintValue = Integer.parseInt(userInput.getText().toString().trim());
 
                                     progress = new ProgressDialog(context);
                                     progress.setTitle("ImageManip");
@@ -825,10 +878,14 @@ public class MainActivity extends Activity {
     private void WriteToFile(String filename, Bitmap bmp)
     {
         String path = Environment.getExternalStorageDirectory().toString();
+
+        String folder = path + "/ImageManip";
+        File folderFile = new File(folder);
+        folderFile.mkdirs();
+
         FileOutputStream f = null;
-        path += "/ImageManip/" + filename + ".png";
-        Log.i("ImageManip Path: ", path);
-        File file = new File(path);
+        File file = new File(folderFile, filename + ".png");
+
         try
         {
             f = new FileOutputStream(file);
@@ -839,7 +896,7 @@ public class MainActivity extends Activity {
         catch (IOException ex)
         {
             Log.i("ImageManip", ex.getMessage());
-            Toast.makeText(this, "Failed to save image to storage card", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Failed to save image to storage card", Toast.LENGTH_LONG).show();
         }
     }
 }
