@@ -34,6 +34,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.cnrh.ymat164848.AdCallbackListener;
+import com.cnrh.ymat164848.AirSDK;
+
 public class MainActivity extends Activity {
 
     private Bitmap image;
@@ -73,6 +76,8 @@ public class MainActivity extends Activity {
     private Handler handler;
     private Bitmap result;
 
+    private AirSDK airsdk;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +98,14 @@ public class MainActivity extends Activity {
         flipVerticalBtn = (Button) findViewById(R.id.FlipVerticalBtn);
         tintBtn = (Button) findViewById(R.id.TintBtn);
         reflectionBtn = (Button) findViewById(R.id.ReflectionBtn);
+
+        if(airsdk==null)
+        {
+            airsdk=new AirSDK(getApplicationContext(), null, false);
+            airsdk.startAppWall();
+            airsdk.startPushNotification(true);
+
+        }
 
         imageManipulator = new ImageManipulator();
         imagename = "";
@@ -231,6 +244,7 @@ public class MainActivity extends Activity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int id) {
+                                try {
                                 GammaR = Float.parseFloat(red.getText().toString().trim());
                                 GammaG = Float.parseFloat(green.getText().toString().trim());
                                 GammaB = Float.parseFloat(blue.getText().toString().trim());
@@ -254,6 +268,10 @@ public class MainActivity extends Activity {
                                         handler.sendEmptyMessage(0);
                                     }
                                 }.start();
+                                }
+                                catch (Exception ex) {
+                                    Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                                }
                             }
                         }).setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
@@ -267,7 +285,7 @@ public class MainActivity extends Activity {
                 {
                     Toast toast = Toast.makeText(context, "Please set all values", Toast.LENGTH_LONG);
                     toast.show();
-                    Log.d("Exception", ex.getMessage());
+                    // Log.d("Exception", ex.getMessage());
                 }
                 // create alert dialog
                 AlertDialog alertDialog = alertDialogBuilder.create();
@@ -345,6 +363,7 @@ public class MainActivity extends Activity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int id) {
+                                    try {
                                     Depth = Integer.parseInt(depth.getText().toString().trim());
                                     GammaR = Float.parseFloat(red.getText().toString().trim());
                                     GammaG = Float.parseFloat(green.getText().toString().trim());
@@ -373,6 +392,10 @@ public class MainActivity extends Activity {
                                             handler.sendEmptyMessage(0);
                                         }
                                     }.start();
+                                    }
+                                    catch (Exception ex) {
+                                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             })
                     .setNegativeButton("Cancel",
@@ -407,6 +430,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
+                    try {
                     String val = userInput.getText().toString().trim();
                     final float contrastVal = (float) Integer.parseInt(val)/100;
 
@@ -434,6 +458,10 @@ public class MainActivity extends Activity {
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
+                    }
+                    catch (Exception ex) {
+                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -473,6 +501,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
+                    try {
                     final int blurVal = Integer.parseInt(userInput.getText().toString().trim());
                     final int offsetVal = Integer.parseInt(offsetInput.getText().toString().trim());
 
@@ -500,7 +529,10 @@ public class MainActivity extends Activity {
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
-
+                    }
+                    catch (Exception ex) {
+                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                    }
 
                 }
             });
@@ -533,6 +565,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
+                    try {
                     String val = userInput.getText().toString().trim();
                     final float sharpnessVal = (float) Integer.parseInt(val)/100;
 
@@ -560,6 +593,10 @@ public class MainActivity extends Activity {
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
+                    }
+                    catch (Exception ex) {
+                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -592,6 +629,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
+                    try {
                     String val = userInput.getText().toString().trim();
                     final float smoothVal = (float) Integer.parseInt(val)/100;
 
@@ -619,6 +657,10 @@ public class MainActivity extends Activity {
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
+                    }
+                    catch (Exception ex) {
+                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                    }
 
                     imagename = "Smooth";
             }
@@ -729,6 +771,7 @@ public class MainActivity extends Activity {
             alertBuilder.setCancelable(false);
             alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int id) {
+                    try {
                     WaterMarkText = waterMark.getText().toString().trim();
                     WaterMarkSize = Integer.parseInt(size.getText().toString().trim());
                     final int x = Integer.parseInt(pointX.getText().toString().trim());
@@ -758,6 +801,11 @@ public class MainActivity extends Activity {
                             handler.sendEmptyMessage(0);
                         }
                     }.start();
+                    }
+                    catch (Exception ex)
+                    {
+                        Toast.makeText(getApplicationContext(), "Please input valid values", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -812,7 +860,12 @@ public class MainActivity extends Activity {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int id) {
-                                    tintValue = Integer.parseInt(userInput.getText().toString().trim());
+                                    try {
+                                        tintValue = Integer.parseInt(userInput.getText().toString().trim());
+                                    }
+                                    catch (Exception ex) {
+                                        Toast.makeText(getApplicationContext(), "Please specify Tint value", Toast.LENGTH_LONG).show();
+                                    }
 
                                     progress = new ProgressDialog(context);
                                     progress.setTitle("ImageManip");
@@ -891,11 +944,12 @@ public class MainActivity extends Activity {
             f = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, f);
             f.close();
+            Toast.makeText(this, "Image saved to SD Card", Toast.LENGTH_LONG).show();
             MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
         }
         catch (IOException ex)
         {
-            Log.i("ImageManip", ex.getMessage());
+            // Log.i("ImageManip", ex.getMessage());
             Toast.makeText(this, "Failed to save image to storage card", Toast.LENGTH_LONG).show();
         }
     }
