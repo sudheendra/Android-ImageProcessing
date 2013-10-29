@@ -30,12 +30,16 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.appbucks.sdk.AppBucksAPI;
+import com.appbucks.sdk.AppBucksBanner;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.cnrh.ymat164848.AdCallbackListener;
-import com.cnrh.ymat164848.AirSDK;
+/*import com.cnrh.ymat164848.AdCallbackListener;
+import com.cnrh.ymat164848.AdView;
+import com.cnrh.ymat164848.AirSDK;*/
 
 public class MainActivity extends Activity {
 
@@ -76,7 +80,10 @@ public class MainActivity extends Activity {
     private Handler handler;
     private Bitmap result;
 
-    private AirSDK airsdk;
+    //private AirSDK airsdk;
+    //private AdView adView;
+    private AppBucksBanner banner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,13 +106,23 @@ public class MainActivity extends Activity {
         tintBtn = (Button) findViewById(R.id.TintBtn);
         reflectionBtn = (Button) findViewById(R.id.ReflectionBtn);
 
-        if(airsdk==null)
+        /*if(airsdk==null)
         {
             airsdk=new AirSDK(getApplicationContext(), null, false);
             airsdk.startAppWall();
             airsdk.startPushNotification(true);
-
         }
+
+        if (adView == null)
+        {
+            adView = new AdView(this, AdView.BANNER_TYPE_IN_APP_AD, AdView.PLACEMENT_TYPE_INTERSTITIAL, true, true, AdView.ANIMATION_TYPE_FADE);
+            adView.setAdListener(adListener);
+        }*/
+
+        AppBucksAPI.initialize(getApplicationContext(), "Image Effects", R.drawable.ic_launcher, 429390694, "a495d0e3-6919-4c07-b8eb-83a7d7d8ae61", true, null, null);
+        AppBucksAPI.userOptOutDialog(this);
+        banner = (AppBucksBanner)findViewById(R.id.banner);
+        banner.showAd();
 
         imageManipulator = new ImageManipulator();
         imagename = "";
@@ -156,6 +173,52 @@ public class MainActivity extends Activity {
                 return super.onOptionsItemSelected(menuItem);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        /*if (airsdk!=null) {
+            airsdk.startSmartWallAd();
+        }*/
+        AppBucksAPI.showInterstitial(this);
+        super.onBackPressed();
+    }
+
+/*    private AdCallbackListener.MraidCallbackListener adListener = new AdCallbackListener.MraidCallbackListener() {
+        @Override
+        public void onAdLoadingListener() {
+
+        }
+
+        @Override
+        public void onAdLoadedListener() {
+
+        }
+
+        @Override
+        public void onErrorListener(String s) {
+
+        }
+
+        @Override
+        public void onCloseListener() {
+
+        }
+
+        @Override
+        public void onAdExpandedListner() {
+
+        }
+
+        @Override
+        public void onAdClickListener() {
+
+        }
+
+        @Override
+        public void noAdAvailableListener() {
+
+        }
+    };*/
 
     private View.OnClickListener DragImageView = new View.OnClickListener() {
         @Override

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MobileSDK">
+    <CLASSES>
+      <root url="jar://$APPLICATION_HOME_DIR$/AppBucksSDKv23/MobileSDK.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

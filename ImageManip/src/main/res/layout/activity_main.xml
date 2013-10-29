@@ -1,4 +1,6 @@
+<!--xmlns:ap="http://schemas.android.com/apk/lib/com.image.imagemanip"-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,7 +33,6 @@
         android:layout_height="1dp"
         android:background="#FF007CCD" />
 
-
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -43,7 +44,6 @@
         android:layout_height="wrap_content"
         android:scrollbarThumbVertical="@drawable/customscrollbar"
         android:fadeScrollbars="true">
-
 
         <LinearLayout android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -155,18 +155,32 @@
                 android:background="@drawable/customborder"/>
 
         </LinearLayout>
+
         </HorizontalScrollView>
+
     </LinearLayout>
-    <com.cnrh.ymat164848.AdView
-        xmlns:ap="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/myAdView"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        ap:animation="fade"
-        ap:banner_type="inappad"
-        ap:placementType="interstitial"
-        ap:test_mode="false"
-        ap:canShowMR="false"
-        />
+        android:layout_gravity="left"
+        android:orientation="horizontal"
+        >
+        <com.appbucks.sdk.AppBucksBanner
+            android:id="@+id/banner"
+            android:layout_width="match_parent"
+            android:layout_height="75dp">
+        </com.appbucks.sdk.AppBucksBanner>
+        <!--<com.cnrh.ymat164848.AdView
+            android:id="@+id/myAdView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            ap:animation="fade"
+            ap:banner_type="inappad"
+            ap:placementType="interstitial"
+            ap:test_mode="true"
+            ap:canShowMR="true"
+            />-->
+    </LinearLayout>
 
 </LinearLayout>

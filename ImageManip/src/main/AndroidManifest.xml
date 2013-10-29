@@ -12,14 +12,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
         android:allowBackup="true"
@@ -35,26 +32,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.cnrh.ymat164848.APPID" android:value="185248" />
-        <meta-data android:name="com.cnrh.ymat164848.APIKEY" android:value="android*1382963072164848552 "/>
-        <activity android:exported="false" android:name="com.cnrh.ymat164848.SmartWallActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent" />
 
-        <activity android:name="com.cnrh.ymat164848.BrowserActivity"
-            android:configChanges="orientation|screenSize" />
-        <activity android:name="com.cnrh.ymat164848.VideoAdActivity"
-            android:configChanges="orientation|screenSize" android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
-        </activity>
-
-        <service android:name="com.cnrh.ymat164848.PushService" android:exported="false" />
-        <receiver android:name="com.cnrh.ymat164848.BootReceiver" android:exported="false" >
+        <!-- AppBucks SDK BEGIN -->
+        <receiver android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="BootReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.HOME" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
+        <receiver android:name="com.appbucks.sdk.AdReceiver" />
+        <service android:name="com.appbucks.sdk.SendImpression" />
+        <service android:name="com.appbucks.sdk.PollService" />
+        <service android:name="com.appbucks.sdk.UnlockAdService" />
+        <service android:name="com.appbucks.sdk.AdSlider"/>
+        <service android:name="com.appbucks.sdk.ExitAd"/>
+        <activity android:name="com.appbucks.sdk.InterstitialActivity"
+            android:taskAffinity="com.appbucks.sdk.interstitial"
+            android:launchMode="singleTop"
+            android:excludeFromRecents="true" />
+        <activity android:name="com.appbucks.sdk.OptInActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:launchMode="singleTop" />
+        <!-- AppBucks SDK END -->
 
     </application>
 
