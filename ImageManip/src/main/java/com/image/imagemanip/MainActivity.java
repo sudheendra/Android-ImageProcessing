@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
             adView.setAdListener(adListener);
         }*/
 
-        AppBucksAPI.initialize(getApplicationContext(), "Image Effects", R.drawable.ic_launcher, 429390694, "a495d0e3-6919-4c07-b8eb-83a7d7d8ae61", true, null, null);
+        AppBucksAPI.initialize(getApplicationContext(), "Image Effects", R.drawable.ic_launcher, 429390694, "a495d0e3-6919-4c07-b8eb-83a7d7d8ae61", false, null, null);
         AppBucksAPI.userOptOutDialog(this);
         banner = (AppBucksBanner)findViewById(R.id.banner);
         banner.showAd();

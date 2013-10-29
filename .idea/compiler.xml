@@ -18,6 +18,9 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ImageManip" target="" />
+    </bytecodeTargetLevel>
   </component>
 </project>
 

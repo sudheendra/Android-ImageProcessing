@@ -169,18 +169,9 @@
         <com.appbucks.sdk.AppBucksBanner
             android:id="@+id/banner"
             android:layout_width="match_parent"
-            android:layout_height="75dp">
+            android:layout_height="50dp">
         </com.appbucks.sdk.AppBucksBanner>
-        <!--<com.cnrh.ymat164848.AdView
-            android:id="@+id/myAdView"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            ap:animation="fade"
-            ap:banner_type="inappad"
-            ap:placementType="interstitial"
-            ap:test_mode="true"
-            ap:canShowMR="true"
-            />-->
+
     </LinearLayout>
 
 </LinearLayout>
