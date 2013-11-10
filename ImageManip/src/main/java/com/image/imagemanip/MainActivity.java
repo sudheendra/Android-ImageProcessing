@@ -37,10 +37,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/*import com.cnrh.ymat164848.AdCallbackListener;
-import com.cnrh.ymat164848.AdView;
-import com.cnrh.ymat164848.AirSDK;*/
-
 public class MainActivity extends Activity {
 
     private Bitmap image;
@@ -84,6 +80,7 @@ public class MainActivity extends Activity {
     //private AdView adView;
     private AppBucksBanner banner;
 
+    private boolean multipleEffects = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,19 +102,6 @@ public class MainActivity extends Activity {
         flipVerticalBtn = (Button) findViewById(R.id.FlipVerticalBtn);
         tintBtn = (Button) findViewById(R.id.TintBtn);
         reflectionBtn = (Button) findViewById(R.id.ReflectionBtn);
-
-        /*if(airsdk==null)
-        {
-            airsdk=new AirSDK(getApplicationContext(), null, false);
-            airsdk.startAppWall();
-            airsdk.startPushNotification(true);
-        }
-
-        if (adView == null)
-        {
-            adView = new AdView(this, AdView.BANNER_TYPE_IN_APP_AD, AdView.PLACEMENT_TYPE_INTERSTITIAL, true, true, AdView.ANIMATION_TYPE_FADE);
-            adView.setAdListener(adListener);
-        }*/
 
         AppBucksAPI.initialize(getApplicationContext(), "Image Effects", R.drawable.ic_launcher, 429390694, "a495d0e3-6919-4c07-b8eb-83a7d7d8ae61", false, null, null);
         AppBucksAPI.userOptOutDialog(this);
@@ -169,6 +153,18 @@ public class MainActivity extends Activity {
                 String fileName = imageorigname + "_" + imagename;
                 WriteToFile(fileName, outImage);
                 return true;
+            case R.id.multiple_effects:
+                if (!menuItem.isChecked())
+                {
+                    Log.i("ImageManip", "menu item checked");
+                    multipleEffects = true;
+                    menuItem.setChecked(true);
+                }
+                else
+                {
+                    multipleEffects = false;
+                    menuItem.setChecked(false);
+                }
             default:
                 return super.onOptionsItemSelected(menuItem);
         }
@@ -176,49 +172,9 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        /*if (airsdk!=null) {
-            airsdk.startSmartWallAd();
-        }*/
         AppBucksAPI.showInterstitial(this);
         super.onBackPressed();
     }
-
-/*    private AdCallbackListener.MraidCallbackListener adListener = new AdCallbackListener.MraidCallbackListener() {
-        @Override
-        public void onAdLoadingListener() {
-
-        }
-
-        @Override
-        public void onAdLoadedListener() {
-
-        }
-
-        @Override
-        public void onErrorListener(String s) {
-
-        }
-
-        @Override
-        public void onCloseListener() {
-
-        }
-
-        @Override
-        public void onAdExpandedListner() {
-
-        }
-
-        @Override
-        public void onAdClickListener() {
-
-        }
-
-        @Override
-        public void noAdAvailableListener() {
-
-        }
-    };*/
 
     private View.OnClickListener DragImageView = new View.OnClickListener() {
         @Override
@@ -267,6 +223,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnGreyBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             Bitmap res= imageManipulator.doGrayscale(image);
             imageView.setImageBitmap(res);
         }
@@ -278,7 +236,8 @@ public class MainActivity extends Activity {
         OnGammaBtnClick = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (multipleEffects)
+                    image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
                 LinearLayout ll = new LinearLayout(context);
                 ll.setOrientation(LinearLayout.VERTICAL);
                 final EditText red = new EditText(context);
@@ -364,6 +323,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnInvertImageBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             progress = new ProgressDialog(context);
             progress.setTitle("ImageManip");
             progress.setMessage("Inverting in Progress");
@@ -394,6 +355,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnSepiaBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             LinearLayout ll = new LinearLayout(context);
             ll.setOrientation(LinearLayout.VERTICAL);
 
@@ -481,7 +444,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnContrastBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
             alertBuilder.setTitle("Contrast");
             alertBuilder.setMessage("Set Contrast Factor (1 - 100");
@@ -545,7 +509,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnBlurBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             LinearLayout ll = new LinearLayout(context);
             ll.setOrientation(LinearLayout.VERTICAL);
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
@@ -617,6 +582,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnSharpenBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
             alertBuilder.setTitle("Sharpening");
             alertBuilder.setMessage("Set Sharpening Factor (1 - 100");
@@ -680,7 +647,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnSmoothBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
             alertBuilder.setTitle("Smooth");
             alertBuilder.setMessage("Set Smoothing Factor (1 - 100");
@@ -745,6 +713,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnEmbossBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = imageView.getDrawingCache();
             progress = new ProgressDialog(context);
             progress.setTitle("ImageManip");
             progress.setMessage("Emboss in progress");
@@ -776,6 +746,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnEngraveBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             progress = new ProgressDialog(context);
             progress.setTitle("ImageManip");
             progress.setMessage("Engrave in progress");
@@ -807,6 +779,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnWatermarkBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             LinearLayout ll = new LinearLayout(context);
             ll.setOrientation(LinearLayout.VERTICAL);
             final EditText waterMark = new EditText(context);
@@ -889,6 +863,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnMirrorBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             Bitmap res = imageManipulator.flip(image, ImageManipulator.FLIP_HORIZONTAL);
             imagename = "Mirror";
             imageView.setImageBitmap(res);
@@ -898,6 +874,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnflipVerticalBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             Bitmap res = imageManipulator.flip(image, ImageManipulator.FLIP_VERTICAL);
             imagename = "Flip";
             imageView.setImageBitmap(res);
@@ -907,6 +885,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnTintBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
             alertDialogBuilder.setTitle("Set Tint Value");
@@ -976,6 +956,12 @@ public class MainActivity extends Activity {
     private View.OnClickListener OnReflectionBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            if (multipleEffects)
+            {
+                image = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                // dumpimage(image);
+                Log.i("ImageManip", "MultipleEffects enabled");
+            }
             Bitmap res = imageManipulator.applyReflection(image);
             imagename = "Reflection";
             imageView.setImageBitmap(res);
@@ -1015,5 +1001,23 @@ public class MainActivity extends Activity {
             // Log.i("ImageManip", ex.getMessage());
             Toast.makeText(this, "Failed to save image to storage card", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void dumpimage(Bitmap image)
+    {
+        String path = Environment.getExternalStorageDirectory().toString();
+
+        String folder = path + "/ImageManip";
+
+        File f = new File(folder, "temp-image.png");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(f);
+            image.compress(Bitmap.CompressFormat.PNG, 90, fileOutputStream);
+            fileOutputStream.close();
+        }
+        catch (IOException ex)
+        {
+        }
+
     }
 }

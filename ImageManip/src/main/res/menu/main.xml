@@ -3,4 +3,8 @@
         android:icon="@drawable/ic_action_save"
         android:title="@string/action_save"
         android:showAsAction="always" />
+    <item android:id="@+id/multiple_effects"
+        android:title="Multiple Effects"
+        android:showAsAction="collapseActionView"
+        android:checkable="true"/>
 </menu>
