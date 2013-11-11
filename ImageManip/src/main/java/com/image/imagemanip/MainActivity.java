@@ -40,6 +40,7 @@ import java.io.IOException;
 public class MainActivity extends Activity {
 
     private Bitmap image;
+    private Bitmap originalImage;
     private ImageView imageView;
     private Button greyImageBtn;
     private Button gammaImageBtn;
@@ -76,11 +77,9 @@ public class MainActivity extends Activity {
     private Handler handler;
     private Bitmap result;
 
-    //private AirSDK airsdk;
-    //private AdView adView;
     private AppBucksBanner banner;
 
-    private boolean multipleEffects = false;
+    private boolean multipleEffects = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +164,11 @@ public class MainActivity extends Activity {
                     multipleEffects = false;
                     menuItem.setChecked(false);
                 }
+                return true;
+            case R.id.original_image:
+                image = originalImage;
+                imageView.setImageBitmap(image);
+                return true;
             default:
                 return super.onOptionsItemSelected(menuItem);
         }
@@ -216,6 +220,7 @@ public class MainActivity extends Activity {
             options.inSampleSize = 8;
             options.inPurgeable = true;
             image = Bitmap.createBitmap(BitmapFactory.decodeFile(picturePath, options));
+            originalImage = image;
             imageView.setImageBitmap(image);
         }
     }

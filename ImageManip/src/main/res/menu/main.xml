@@ -6,5 +6,9 @@
     <item android:id="@+id/multiple_effects"
         android:title="Multiple Effects"
         android:showAsAction="collapseActionView"
-        android:checkable="true"/>
+        android:checkable="true"
+        android:checked="true"/>
+    <item android:id="@+id/original_image"
+        android:title="Original Image"
+        android:showAsAction="collapseActionView" />
 </menu>
